@@ -40,7 +40,7 @@ namespace RetroBowl.Gameplay
             float verticalVelocity = (gravity * flightTime) / 2f;
             
             Vector3 velocity = direction * throwSpeed + Vector3.up * verticalVelocity;
-            rb.velocity = velocity;
+            rb.linearVelocity = velocity;
 
             Vector3 angularVelocity = new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f), Random.Range(10f, 20f));
             rb.angularVelocity = angularVelocity;
@@ -81,7 +81,7 @@ namespace RetroBowl.Gameplay
             if (rb != null)
             {
                 rb.isKinematic = true;
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
             }
 
@@ -97,7 +97,7 @@ namespace RetroBowl.Gameplay
             isInAir = false;
             if (rb != null)
             {
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 rb.isKinematic = true;
             }

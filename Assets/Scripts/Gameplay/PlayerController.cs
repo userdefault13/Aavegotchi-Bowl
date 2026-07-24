@@ -44,7 +44,7 @@ namespace RetroBowl.Gameplay
         {
             if (!isControlled) return;
 
-            rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
+            rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
         }
 
         void HandleInput()
