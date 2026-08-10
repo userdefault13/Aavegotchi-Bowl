@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using RetroBowl.Core;
+using RetroBowl.Gameplay;
+using RetroBowl.Managers;
 
 namespace RetroBowl.UI
 {
@@ -21,9 +23,61 @@ namespace RetroBowl.UI
         public TextMeshProUGUI playerTeamNameText;
         public TextMeshProUGUI opponentTeamNameText;
 
+        [Header("Root")]
+        public GameObject hudRoot;
+
+        bool teamNamesBound;
+
+        void Awake()
+        {
+            if (hudRoot == null)
+            {
+                var t = transform.Find("HUDPanel");
+                if (t != null) hudRoot = t.gameObject;
+            }
+
+            // Full-screen HUD Image must never steal clicks from QuarterBreak Continue.
+            if (hudRoot != null)
+            {
+                var img = hudRoot.GetComponent<Image>();
+                if (img != null)
+                    img.raycastTarget = false;
+            }
+        }
+
+        void Start()
+        {
+            BindTeamNamesFromCareer();
+        }
+
         void Update()
         {
-            UpdateHUD();
+            if (GameManager.Instance == null) return;
+
+            // Keep score/clock visible during break, but do not sit above modal panels.
+            bool show = GameManager.Instance.currentState == GameState.Playing
+                        || GameManager.Instance.currentState == GameState.Paused
+                        || GameManager.Instance.currentState == GameState.QuarterBreak;
+
+            if (hudRoot != null && hudRoot.activeSelf != show)
+                hudRoot.SetActive(show);
+
+            if (show)
+            {
+                if (!teamNamesBound)
+                    BindTeamNamesFromCareer();
+                UpdateHUD();
+            }
+        }
+
+        void BindTeamNamesFromCareer()
+        {
+            if (TeamManager.Instance == null) return;
+            // HUD uses short abbreviations (Retro Bowl style: NYG 0  PHI 0).
+            SetTeamNames(
+                TeamManager.Instance.PlayerTeamAbbrev(),
+                TeamManager.Instance.OpponentTeamAbbrev());
+            teamNamesBound = true;
         }
 
         void UpdateHUD()
@@ -42,7 +96,12 @@ namespace RetroBowl.UI
 
             if (quarterText != null)
             {
-                quarterText.text = $"Q{GameManager.Instance.currentQuarter}";
+                if (GameManager.Instance.isPracticeMode)
+                    quarterText.text = "PRAC";
+                else if (GameManager.Instance.isOvertime)
+                    quarterText.text = "OT";
+                else
+                    quarterText.text = QuarterLabel(GameManager.Instance.currentQuarter);
             }
 
             if (timeText != null)
@@ -59,7 +118,10 @@ namespace RetroBowl.UI
 
                 if (yardLineText != null)
                 {
-                    yardLineText.text = $"Ball on {FieldManager.Instance.currentYardLine}";
+                    string weather = "";
+                    if (WeatherSystem.Instance != null)
+                        weather = $"  ·  {WeatherSystem.Instance.Label}";
+                    yardLineText.text = $"Ball on {FieldManager.Instance.OwnYardLine}{weather}";
                 }
             }
         }
@@ -75,6 +137,16 @@ namespace RetroBowl.UI
             {
                 opponentTeamNameText.text = opponentTeam;
             }
+
+            teamNamesBound = true;
         }
+
+        static string QuarterLabel(int quarter) => quarter switch
+        {
+            1 => "1st Qtr",
+            2 => "2nd Qtr",
+            3 => "3rd Qtr",
+            _ => "4th Qtr"
+        };
     }
 }

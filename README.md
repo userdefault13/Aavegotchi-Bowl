@@ -26,26 +26,16 @@ Unity arcade football project inspired by Retro Bowl — gameplay + season manag
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Unity 2022.3.10f1** or later
-- **TextMeshPro** (Unity package)
-- Basic understanding of Unity Editor
+- **Unity 6000.4+** (Unity 6)
+- TextMesh Pro (included under `Assets/TextMesh Pro`)
 
 ### Installation
 
-1. **Clone or download this project**
-   ```bash
-   cd RetroBowlUnity
-   ```
+1. Open `Aavegotchi-Bowl` in Unity Hub
+2. Open `Assets/Scenes/BootScene.unity` (Career + Match via SceneFlow)
+3. Press Play (or run **Aavegotchi Bowl → Setup Project** / **Build Scene Architecture** if scenes need rebuilding)
 
-2. **Open in Unity**
-   - Open Unity Hub
-   - Click "Add" → "Add project from disk"
-   - Navigate to the `RetroBowlUnity` folder
-   - Select and open the project
-
-3. **Import TextMeshPro**
-   - Unity will prompt to import TMP Essentials
-   - Click "Import TMP Essentials"
+See `SETUP_GUIDE.md` / `GETTING_STARTED.md` for details.
 
 ### Project Structure
 
@@ -88,7 +78,7 @@ Since this is an MVP with scripts only, you'll need to create the scene manually
 ### 1. Create Main Scene
 
 1. **Create new scene**: File → New Scene → Basic (3D)
-2. **Save scene**: `Assets/Scenes/GameScene.unity`
+2. **Save scene**: `Assets/Scenes/MatchScene.unity`
 
 ### 2. Setup Game Managers
 

@@ -361,7 +361,9 @@ Assets/
 │   ├── Data/           (Data structures)
 │   └── UI/             (User interface)
 ├── Scenes/
-│   └── GameScene.unity (Main game scene)
+│   ├── BootScene.unity (App entry / DDOL)
+│   ├── CareerScene.unity (Meta UI rooms)
+│   └── MatchScene.unity (Gameplay)
 ├── Prefabs/
 │   └── Football.prefab (Ball prefab)
 ├── Materials/

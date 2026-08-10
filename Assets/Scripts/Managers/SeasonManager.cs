@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using RetroBowl.Core;
 using RetroBowl.Data;
 
 namespace RetroBowl.Managers
@@ -20,22 +21,44 @@ namespace RetroBowl.Managers
         public int playerWins = 0;
         public int playerLosses = 0;
 
+        [Header("Meta")]
+        [Range(0f, 100f)] public float teamMorale = 70f;
+
         void Awake()
         {
-            if (Instance == null)
+            bool onAppRoot = GameManager.Instance != null
+                             && gameObject == GameManager.Instance.gameObject;
+
+            if (Instance == null || Instance == this)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
+                if (transform.parent == null)
+                    DontDestroyOnLoad(gameObject);
+                return;
             }
-            else
+
+            bool instanceOnAppRoot = GameManager.Instance != null
+                                     && Instance.gameObject == GameManager.Instance.gameObject;
+            if (onAppRoot && !instanceOnAppRoot)
             {
-                Destroy(gameObject);
+                Destroy(Instance.gameObject);
+                Instance = this;
+                return;
             }
+
+            Destroy(this);
+        }
+
+        void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
         }
 
         void Start()
         {
-            GenerateSchedule();
+            // Keep an in-progress season — MatchScene duplicates must not wipe week/record.
+            if (schedule == null || schedule.Count == 0)
+                GenerateSchedule();
         }
 
         public void GenerateSchedule()
@@ -69,12 +92,19 @@ namespace RetroBowl.Managers
                 if (playerScore > opponentScore)
                 {
                     playerWins++;
+                    AdjustMorale(5f);
                     Debug.Log($"Win! Record: {playerWins}-{playerLosses}");
+                }
+                else if (playerScore < opponentScore)
+                {
+                    playerLosses++;
+                    AdjustMorale(-6f);
+                    Debug.Log($"Loss! Record: {playerWins}-{playerLosses}");
                 }
                 else
                 {
-                    playerLosses++;
-                    Debug.Log($"Loss! Record: {playerWins}-{playerLosses}");
+                    AdjustMorale(-1f);
+                    Debug.Log($"Tie! Record: {playerWins}-{playerLosses}");
                 }
 
                 currentWeek++;
@@ -84,6 +114,11 @@ namespace RetroBowl.Managers
                     EndSeason();
                 }
             }
+        }
+
+        public void AdjustMorale(float delta)
+        {
+            teamMorale = Mathf.Clamp(teamMorale + delta, 0f, 100f);
         }
 
         void EndSeason()
@@ -106,6 +141,7 @@ namespace RetroBowl.Managers
             currentWeek = 1;
             playerWins = 0;
             playerLosses = 0;
+            teamMorale = 70f;
             GenerateSchedule();
 
             Debug.Log($"Starting Season {currentSeason}");

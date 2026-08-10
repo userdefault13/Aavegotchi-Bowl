@@ -8,6 +8,8 @@ namespace RetroBowl.Data
     {
         public string teamName;
         public string cityName;
+        /// <summary>Optional HUD code (e.g. USDC / UNI). When empty, derived from city.</summary>
+        public string abbreviation;
         public Color primaryColor;
         public Color secondaryColor;
         public List<PlayerData> roster;
@@ -15,13 +17,45 @@ namespace RetroBowl.Data
         public int wins = 0;
         public int losses = 0;
 
-        public TeamData(string city, string name, Color primary, Color secondary)
+        public TeamData(string city, string name, Color primary, Color secondary, string abbrev = null)
         {
             cityName = city;
             teamName = name;
             primaryColor = primary;
             secondaryColor = secondary;
+            abbreviation = abbrev;
             roster = new List<PlayerData>();
+        }
+
+        /// <summary>Retro-style HUD code (USDC / UNI / NYT).</summary>
+        public string GetAbbreviation()
+        {
+            if (!string.IsNullOrEmpty(abbreviation))
+                return abbreviation.ToUpperInvariant();
+
+            if (string.IsNullOrEmpty(cityName))
+                return "TM";
+
+            var words = cityName.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length >= 2)
+            {
+                char a = char.ToUpperInvariant(words[0][0]);
+                char b = char.ToUpperInvariant(words[1][0]);
+                char c = !string.IsNullOrEmpty(teamName)
+                    ? char.ToUpperInvariant(teamName[0])
+                    : 'X';
+                return $"{a}{b}{c}";
+            }
+
+            string raw = cityName.Replace(" ", "").ToUpperInvariant();
+            if (raw.Length >= 3)
+                return raw.Substring(0, Mathf.Min(4, raw.Length));
+
+            if (!string.IsNullOrEmpty(teamName))
+                raw += teamName.ToUpperInvariant();
+            while (raw.Length < 3)
+                raw += "X";
+            return raw.Substring(0, Mathf.Min(4, raw.Length));
         }
 
         public void GenerateRoster()

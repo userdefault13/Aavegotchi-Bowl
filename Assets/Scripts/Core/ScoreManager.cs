@@ -26,8 +26,14 @@ namespace RetroBowl.Core
             }
             else
             {
-                Destroy(gameObject);
+                // Component may live on DDOL AppRoot — never destroy the host GO.
+                Destroy(this);
             }
+        }
+
+        void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
         }
 
         public void ScoreTouchdown(bool isPlayer)
@@ -50,8 +56,8 @@ namespace RetroBowl.Core
 
         void AttemptExtraPoint(bool isPlayer)
         {
+            // Legacy path — live games use PostScoreFlow / KickingController after TDs.
             bool success = Random.value > 0.05f;
-
             if (success)
             {
                 GameManager.Instance.AddScore(isPlayer, extraPointValue);

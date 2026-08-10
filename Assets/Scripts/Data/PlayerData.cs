@@ -59,6 +59,23 @@ namespace RetroBowl.Data
                 case PlayerPosition.OffensiveLine:
                     strength += 20;
                     awareness += 10;
+                    speed -= 10;
+                    break;
+                case PlayerPosition.DefensiveLine:
+                    strength += 20;
+                    speed -= 10;
+                    break;
+                case PlayerPosition.Linebacker:
+                    awareness += 10;
+                    speed += 5;
+                    break;
+                case PlayerPosition.Cornerback:
+                    speed += 20;
+                    awareness += 10;
+                    break;
+                case PlayerPosition.Safety:
+                    speed += 12;
+                    awareness += 15;
                     break;
             }
 
@@ -74,6 +91,38 @@ namespace RetroBowl.Data
         {
             return (speed + strength + agility + throwing + catching + awareness) / 6;
         }
+
+        /// <summary>
+        /// Retro Bowl stamina bar — career UI historically mapped this to <see cref="agility"/>.
+        /// </summary>
+        public int StaminaStat => agility;
+
+        /// <summary>Position key skill (RB "skill" bar): throw / catch / tackle / block.</summary>
+        public int KeySkill(PlayerPosition position)
+        {
+            switch (position)
+            {
+                case PlayerPosition.Quarterback:
+                    return throwing;
+                case PlayerPosition.WideReceiver:
+                case PlayerPosition.RunningBack:
+                case PlayerPosition.TightEnd:
+                    return catching;
+                case PlayerPosition.OffensiveLine:
+                    return Mathf.Max(strength, awareness);
+                case PlayerPosition.DefensiveLine:
+                case PlayerPosition.Linebacker:
+                case PlayerPosition.Cornerback:
+                case PlayerPosition.Safety:
+                    return Mathf.Max(strength, awareness);
+                default:
+                    return awareness;
+            }
+        }
+
+        /// <summary>Retro Bowl–ish half-star rating from overall 1–99.</summary>
+        public float StarRating => Mathf.Clamp(
+            Mathf.Round((GetOverallRating() / 99f) * 9f) * 0.5f, 0.5f, 5f);
     }
 
     public enum PlayerPosition
